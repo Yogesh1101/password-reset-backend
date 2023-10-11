@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 // require("dotenv").config();
 
+// This to connect the server to database
+
 dotenv.config();
 
 export function dataBaseConnection() {

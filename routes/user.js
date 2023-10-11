@@ -117,6 +117,7 @@ router.get("/reset-password/:id/:token", async (req, res) => {
   const secret = process.env.SECRET_KEY + user.password;
   try {
     const verify = jwt.verify(token, secret);
+    // This load the html file where the form is displayed to enter new password
     res.render("index", { email: verify.email, status: "Not Verified" });
   } catch (error) {
     res.send("Not Verified");
@@ -141,6 +142,7 @@ router.post("/reset-password/:id/:token", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     await User.updateOne({ _id: id }, { $set: { password: hashedPassword } });
     // res.json({ status: "Password Updated" });
+    // This load the html file where the form is displayed to enter new password
     res.render("index", { email: verify.email, status: "verified" });
   } catch (error) {
     res.json({ status: "Something went wrong" });
