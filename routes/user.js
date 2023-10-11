@@ -99,7 +99,7 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-router.get("/user/reset-password/:id/:token", async (req, res) => {
+router.get("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
   console.log(req.params);
   const user = await User.findOne({ _id: id });
