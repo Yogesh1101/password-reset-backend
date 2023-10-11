@@ -127,30 +127,24 @@ router.get("/reset-password/:id/:token", async (req, res) => {
 // post reset-password routes
 router.post("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
-  const { password, confirmPassword } = req.body;
+  const { password } = req.body;
   // checking whether the new password and confirm password is same
-  if (password === confirmPassword) {
-    // check user is exits
-    const user = await User.findOne({ _id: id });
-    if (!user) {
-      return res.status(404).json({ error: "User does not exists." });
-    }
-    const secret = process.env.SECRET_KEY + user.password;
-    try {
-      const verify = jwt.verify(token, secret);
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      await User.updateOne({ _id: id }, { $set: { password: hashedPassword } });
-      // res.json({ status: "Password Updated" });
-      res.render("index", { email: verify.email, status: "verified" });
-    } catch (error) {
-      res.json({ status: "Something went wrong" });
-      console.log(error);
-    }
-  } else {
-    return res.json({
-      error: "Both password and confirm password are not same",
-    });
+  // check user is exits
+  const user = await User.findOne({ _id: id });
+  if (!user) {
+    return res.status(404).json({ error: "User does not exists." });
+  }
+  const secret = process.env.SECRET_KEY + user.password;
+  try {
+    const verify = jwt.verify(token, secret);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    await User.updateOne({ _id: id }, { $set: { password: hashedPassword } });
+    // res.json({ status: "Password Updated" });
+    res.render("index", { email: verify.email, status: "verified" });
+  } catch (error) {
+    res.json({ status: "Something went wrong" });
+    console.log(error);
   }
 });
 
