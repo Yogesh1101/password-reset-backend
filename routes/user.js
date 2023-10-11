@@ -5,6 +5,7 @@ import { User, generateToken } from "../models/user.js";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
+// express router is initialized to router variable and used
 const router = express.Router();
 
 // login routes
@@ -44,8 +45,8 @@ router.post("/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
+    // storing the email and password in User
     user = await new User({
-      username: req.body.username,
       email: req.body.email,
       password: hashedPassword,
     }).save();
@@ -57,18 +58,24 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+// forgot-password routes
 router.post("/forgot-password", async (req, res) => {
   try {
+    // check user already exists
     const user = await getUserByEmail(req);
     if (!user) {
       return res.status(404).json({ error: "User does not exists." });
     }
+    // generating a random string consist of some token and secret key
     const secret = process.env.SECRET_KEY + user.password;
     const token = jwt.sign({ email: user.email, id: user._id }, secret, {
       expiresIn: "5m",
     });
 
+    // this is sent to the user via mail when they submit the email in forgor page
     const link = `https://password-reset-ay3q.onrender.com/user/reset-password/${user._id}/${token}`;
+
+    // This is the part to sent and email to user
     var transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -91,7 +98,6 @@ router.post("/forgot-password", async (req, res) => {
         console.log("Email sent: " + info.response);
       }
     });
-    console.log(link);
     res.status(200).json({ message: "Logged in Successfully.", token });
   } catch (error) {
     console.log(error);
@@ -99,12 +105,15 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
+// get reset-password routes
 router.get("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
+  // check user already exists by id
   const user = await User.findOne({ _id: id });
   if (!user) {
     return res.status(404).json({ error: "User does not exists." });
   }
+  // verifying the random string which is sent via email using jwt
   const secret = process.env.SECRET_KEY + user.password;
   try {
     const verify = jwt.verify(token, secret);
@@ -115,10 +124,13 @@ router.get("/reset-password/:id/:token", async (req, res) => {
   }
 });
 
+// post reset-password routes
 router.post("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
   const { password, confirmPassword } = req.body;
+  // checking whether the new password and confirm password is same
   if (password === confirmPassword) {
+    // check user is exits
     const user = await User.findOne({ _id: id });
     if (!user) {
       return res.status(404).json({ error: "User does not exists." });
