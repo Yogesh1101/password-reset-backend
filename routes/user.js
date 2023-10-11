@@ -67,7 +67,8 @@ router.post("/forgot-password", async (req, res) => {
     const token = jwt.sign({ email: user.email, id: user._id }, secret, {
       expiresIn: "5m",
     });
-    const link = `http://localhost:7000/user/reset-password/${user._id}/${token}`;
+    
+    const link = `https://password-reset-ay3q.onrender.com/user/reset-password/${user._id}/${token}`;
     var transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -135,39 +136,5 @@ router.post("/reset-password/:id/:token", async (req, res) => {
     console.log(error);
   }
 });
-
-// router.post("/reset-password/:id/:token", async (req, res) => {
-//   const { id, token } = req.params;
-//   const { password } = req.body;
-//   const user = await User.findOne({ _id: id });
-//   if (!user) {
-//     return res.status(404).json({ error: "User does not exists." });
-//   }
-//   const secret = process.env.SECRET_KEY + user.password;
-//   try {
-//     const verify = jwt.verify(token, secret);
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(password, salt);
-//     await User.updateOne(
-//       {
-//         _id: id,
-//       },
-//       {
-//         $set: {
-//           password: hashedPassword,
-//         },
-//       }
-//     );
-//     res.status(200).json({ message: "Password Updated" });
-//     res.render("index", { email: verify.email, status: "verified" });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
-
-// router.get("/alluser", async (req, res) => {
-//   const users = await User.find();
-// });
 
 export const userRouter = router;

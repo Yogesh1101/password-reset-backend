@@ -8,7 +8,7 @@ import { userRouter } from "./routes/user.js";
 dotenv.config();
 
 const app = express();
-const PORT = 7000;
+const PORT = process.env.PORT || 7000;
 
 // middlewares
 app.use(express.json());
