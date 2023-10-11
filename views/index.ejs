@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script>
-      var state = '<%- JSON.stringify(status) %>';
+      var state = "<%- JSON.stringify(status) %>";
       console.log(state);
       if (JSON.parse(state) == "verified") {
         if (confirm("Do you want to continue?")) {
-          window.location.href = "http://localhost:3000/login/";
+          window.location.href =
+            "https://password-reset-task-frontend.netlify.app/login";
         }
       }
     </script>
@@ -25,8 +26,8 @@
       />
       <input
         type="password"
-        name="confirm-password"
-        id="confirm-password"
+        name="confirmPassword"
+        id="confirmPassword"
         placeholder="Conform New Password"
       />
       <input type="submit" value="submit" />

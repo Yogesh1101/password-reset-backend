@@ -67,7 +67,7 @@ router.post("/forgot-password", async (req, res) => {
     const token = jwt.sign({ email: user.email, id: user._id }, secret, {
       expiresIn: "5m",
     });
-    
+
     const link = `https://password-reset-ay3q.onrender.com/user/reset-password/${user._id}/${token}`;
     var transporter = nodemailer.createTransport({
       service: "gmail",
@@ -101,7 +101,6 @@ router.post("/forgot-password", async (req, res) => {
 
 router.get("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
-  console.log(req.params);
   const user = await User.findOne({ _id: id });
   if (!user) {
     return res.status(404).json({ error: "User does not exists." });
@@ -118,22 +117,28 @@ router.get("/reset-password/:id/:token", async (req, res) => {
 
 router.post("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
-  const { password } = req.body;
-  const user = await User.findOne({ _id: id });
-  if (!user) {
-    return res.status(404).json({ error: "User does not exists." });
-  }
-  const secret = process.env.SECRET_KEY + user.password;
-  try {
-    const verify = jwt.verify(token, secret);
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    await User.updateOne({ _id: id }, { $set: { password: hashedPassword } });
-    // res.json({ status: "Password Updated" });
-    res.render("index", { email: verify.email, status: "verified" });
-  } catch (error) {
-    res.json({ status: "Something went wrong" });
-    console.log(error);
+  const { password, confirmPassword } = req.body;
+  if (password === confirmPassword) {
+    const user = await User.findOne({ _id: id });
+    if (!user) {
+      return res.status(404).json({ error: "User does not exists." });
+    }
+    const secret = process.env.SECRET_KEY + user.password;
+    try {
+      const verify = jwt.verify(token, secret);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      await User.updateOne({ _id: id }, { $set: { password: hashedPassword } });
+      // res.json({ status: "Password Updated" });
+      res.render("index", { email: verify.email, status: "verified" });
+    } catch (error) {
+      res.json({ status: "Something went wrong" });
+      console.log(error);
+    }
+  } else {
+    return res.json({
+      error: "Both password and confirm password are not same",
+    });
   }
 });
 
