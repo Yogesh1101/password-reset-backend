@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+// require("dotenv").config();
+
+dotenv.config();
 
 export function dataBaseConnection() {
   const params = {
